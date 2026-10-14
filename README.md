@@ -44,4 +44,4 @@ This work is free to use. Please credit the author (see `LICENSE` and `CITATION.
 Al-Saffar, A. A. Y. (2026). *IFC-XAI: Explainable AI Governance in Internal Financial Control (COSO-aligned)* [Software]. https://github.com/AliAlsaffarMosulUniversity/ifc-xai-coso
 
 ## Interactive dashboard
-Open `index.html` in a browser (or via GitHub Pages) (needs internet for Chart.js). It shows gauges, ROC curves, confusion matrix, SHAP/COSO charts and a decision-threshold slider.
+Open `index.html` in a browser (or via GitHub Pages) (needs internet for Chart.js). English (default) and Arabic interface with light/dark mode. It shows gauges, ROC curves, confusion matrix, SHAP/COSO charts and a decision-threshold slider.
