@@ -72,7 +72,7 @@ plt.figure(figsize=(5.2, 5))
 plt.imshow(cm_best, cmap="Blues")
 for i in range(2):
     for j in range(2):
-        plt.text(j, i, str(cm_best[i, j]), ha="center", va="center", fontsize=14)
+        plt.text(j, i, str(cm_best[i, j]), ha="center", va="center", fontsize=14, color="white" if cm_best[i, j] > cm_best.max() / 2 else "black")
 plt.xticks([0, 1], ["Pred: No Risk", "Pred: Risk"])
 plt.yticks([0, 1], ["Actual: No Risk", "Actual: Risk"])
 plt.title(f"Confusion Matrix - {best_name}", fontsize=13)
