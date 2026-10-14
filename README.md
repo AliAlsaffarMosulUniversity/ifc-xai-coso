@@ -37,3 +37,8 @@ German Credit (Statlog), UCI Machine Learning Repository — Hofmann (1994); Dua
 ## Notes
 - `REFERENCES_CHECK.md` lists which references were verified.
 - Code is released under the MIT License (see LICENSE). The German Credit dataset remains subject to its UCI terms.
+
+## Citation / Attribution
+This work is free to use. Please credit the author (see `LICENSE` and `CITATION.cff`):
+
+Al-Saffar, A. A. Y. (2026). *IFC-XAI: Explainable AI Governance in Internal Financial Control (COSO-aligned)* [Software]. https://github.com/AliAlsaffarMosulUniversity/ifc-xai-coso
