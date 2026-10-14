@@ -1,0 +1,16 @@
+Feature,Mean|SHAP value|,Rank,COSO_Component
+cat__status_no checking account,0.4481436370891166,1,Risk Assessment
+cat__savings_... < 100 DM,0.3267225830537718,2,Risk Assessment
+cat__credit_history_critical account/other credits existing,0.3220505258671327,3,Risk Assessment
+num__installment_rate,0.3168019541011321,4,Control Activities
+num__duration,0.285204334106216,5,Control Activities
+cat__status_... < 100 DM,0.2284657820699197,6,Risk Assessment
+num__number_credits,0.2057892183079733,7,Control Activities
+cat__personal_status_sex_male : single,0.1985248281112191,8,Control Environment
+cat__employment_duration_4 <= ... < 7 years,0.1831462068510066,9,Control Environment
+cat__property_unknown/no property,0.1809564950800203,10,Risk Assessment
+cat__housing_rent,0.1666498399059238,11,Control Environment
+num__amount,0.1662443130973575,12,Control Activities
+cat__savings_unknown/no savings account,0.1465083021304024,13,Risk Assessment
+cat__status_0 <= ... < 200 DM,0.1391181621583962,14,Risk Assessment
+cat__property_real estate,0.1369443337831964,15,Risk Assessment

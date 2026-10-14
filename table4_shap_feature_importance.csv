@@ -1,0 +1,62 @@
+Feature,Mean|SHAP value|,Rank
+cat__status_no checking account,0.4481436370891166,1
+cat__savings_... < 100 DM,0.32672258305377183,2
+cat__credit_history_critical account/other credits existing,0.3220505258671327,3
+num__installment_rate,0.3168019541011321,4
+num__duration,0.285204334106216,5
+cat__status_... < 100 DM,0.2284657820699197,6
+num__number_credits,0.2057892183079733,7
+cat__personal_status_sex_male : single,0.19852482811121913,8
+cat__employment_duration_4 <= ... < 7 years,0.1831462068510066,9
+cat__property_unknown/no property,0.18095649508002035,10
+cat__housing_rent,0.16664983990592383,11
+num__amount,0.16624431309735757,12
+cat__savings_unknown/no savings account,0.14650830213040247,13
+cat__status_0 <= ... < 200 DM,0.13911816215839623,14
+cat__property_real estate,0.13694433378319645,15
+cat__purpose_car (new),0.12813058194434768,16
+cat__other_installment_plans_none,0.12180583207623326,17
+cat__purpose_retraining,0.11305750148854754,18
+cat__housing_for free,0.10616318747798123,19
+cat__other_installment_plans_bank,0.0984538468965654,20
+num__age,0.0815216240894513,21
+cat__purpose_car (used),0.07986368683155816,22
+num__people_liable,0.07640026958519709,23
+cat__employment_duration_unemployed,0.07247881610080092,24
+cat__property_building society savings agreement/life insurance,0.06961984853165419,25
+cat__telephone_yes,0.06420364203827905,26
+cat__property_car or other,0.06339808661995594,27
+cat__telephone_no,0.06323722355766123,28
+cat__employment_duration_... < 1 year,0.061168897811394785,29
+cat__savings_... >= 1000 DM,0.057597565533225994,30
+cat__purpose_domestic appliances,0.05372548335463505,31
+cat__credit_history_existing credits paid back duly till now,0.050439730838207686,32
+cat__savings_100 <= ... < 500 DM,0.044686883227401546,33
+cat__foreign_worker_no,0.04395859973636122,34
+cat__foreign_worker_yes,0.043825364068197085,35
+cat__other_debtors_guarantor,0.04308496103620985,36
+cat__credit_history_all credits at this bank paid back duly,0.034663852212836216,37
+cat__employment_duration_... >= 7 years,0.034346519512104524,38
+cat__job_skilled employee/official,0.033497315964479094,39
+cat__job_unskilled - resident,0.029118198390268645,40
+cat__personal_status_sex_female : divorced/separated/married,0.02693780992443367,41
+cat__purpose_furniture/equipment,0.02137810568203713,42
+cat__credit_history_no credits taken/all credits paid back duly,0.019779749851813303,43
+cat__personal_status_sex_male : divorced/separated,0.018155499127941375,44
+cat__job_management/self-employed/highly qualified employee/officer,0.017647541296196976,45
+cat__other_debtors_none,0.01716663066746581,46
+cat__other_debtors_co-applicant,0.01669925277829717,47
+num__present_residence,0.0162537282418372,48
+cat__credit_history_delay in paying off in the past,0.012252369616994394,49
+cat__employment_duration_1 <= ... < 4 years,0.010657017110016199,50
+cat__savings_500 <= ... < 1000 DM,0.009109962106964542,51
+cat__purpose_business,0.008422505829406065,52
+cat__purpose_others,0.0075001825067178675,53
+cat__status_... >= 200 DM / salary for at least 1 year,0.006740951619503191,54
+cat__housing_own,0.006740375394986565,55
+cat__purpose_education,0.006510621876479892,56
+cat__job_unemployed/unskilled - non-resident,0.0056489025639919555,57
+cat__personal_status_sex_male : married/widowed,0.004100138009421753,58
+cat__purpose_radio/television,0.0035632971521111037,59
+cat__other_installment_plans_stores,0.0022783846392057877,60
+cat__purpose_repairs,0.0003469961603094325,61
