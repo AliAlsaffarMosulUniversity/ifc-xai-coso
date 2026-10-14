@@ -1,5 +1,9 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة IFC-XAI</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
 /* Layout: control strip with gauges on top, then ROC + confusion, then SHAP/COSO, then CV evidence. Ink-blue accent, amber for risk. */
@@ -7,7 +11,9 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1523;--surface:#16203A;--ink:#E6ECF5;--muted:#9AA7BC;--line:#26324D;--accent:#6FA3E8;--accent-soft:#1C2C4C;--good:#5CC49A;--warn:#E0A94A;--bad:#E27B73;--c1:#6FA3E8;--c2:#E0A94A;--c3:#7DBBA6;--c4:#B88BCB;--c5:#93A0AE;--grid:#26324D;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0E1523;--surface:#16203A;--ink:#E6ECF5;--muted:#9AA7BC;--line:#26324D;--accent:#6FA3E8;--accent-soft:#1C2C4C;--good:#5CC49A;--warn:#E0A94A;--bad:#E27B73;--c1:#6FA3E8;--c2:#E0A94A;--c3:#7DBBA6;--c4:#B88BCB;--c5:#93A0AE;--grid:#26324D;color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;padding-block:24px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-size:15px}
+html{color-scheme:light}
+:root[data-theme=dark],html{color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;padding-block:24px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-size:15px}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
 h1{font-size:26px;line-height:1.3;margin:0;text-wrap:balance}
 h2{font-size:16px;margin:0 0 4px;font-weight:600}
@@ -46,6 +52,8 @@ td:first-child,th:first-child{text-align:right}
 .lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:8px}
 .tag{font-size:12px;color:var(--muted)}
 </style>
+</head>
+<body>
 <div class="wrap">
   <header>
     <h1>لوحة IFC-XAI للرقابة الداخلية المالية</h1>
@@ -177,3 +185,6 @@ build();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',build);
 new MutationObserver(build).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 </script>
+
+</body>
+</html>
