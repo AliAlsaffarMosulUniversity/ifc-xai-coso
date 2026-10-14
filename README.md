@@ -42,3 +42,6 @@ German Credit (Statlog), UCI Machine Learning Repository — Hofmann (1994); Dua
 This work is free to use. Please credit the author (see `LICENSE` and `CITATION.cff`):
 
 Al-Saffar, A. A. Y. (2026). *IFC-XAI: Explainable AI Governance in Internal Financial Control (COSO-aligned)* [Software]. https://github.com/AliAlsaffarMosulUniversity/ifc-xai-coso
+
+## Interactive dashboard
+Open `dashboard.html` in a browser (needs internet for Chart.js). It shows gauges, ROC curves, confusion matrix, SHAP/COSO charts and a decision-threshold slider.

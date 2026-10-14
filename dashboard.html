@@ -1,0 +1,179 @@
+<title>لوحة IFC-XAI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: control strip with gauges on top, then ROC + confusion, then SHAP/COSO, then CV evidence. Ink-blue accent, amber for risk. */
+:root{--bg:#F3F5F8;--surface:#FFFFFF;--ink:#14213A;--muted:#5B6678;--line:#DCE2EA;--accent:#1F4E8C;--accent-soft:#E4ECF7;--good:#2E7D5B;--warn:#B7791F;--bad:#B4413A;--c1:#1F4E8C;--c2:#C2842B;--c3:#5E8C7B;--c4:#8A5A9E;--c5:#7A8794;--grid:#E3E8EE;--sans:"IBM Plex Sans Arabic",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1523;--surface:#16203A;--ink:#E6ECF5;--muted:#9AA7BC;--line:#26324D;--accent:#6FA3E8;--accent-soft:#1C2C4C;--good:#5CC49A;--warn:#E0A94A;--bad:#E27B73;--c1:#6FA3E8;--c2:#E0A94A;--c3:#7DBBA6;--c4:#B88BCB;--c5:#93A0AE;--grid:#26324D;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1523;--surface:#16203A;--ink:#E6ECF5;--muted:#9AA7BC;--line:#26324D;--accent:#6FA3E8;--accent-soft:#1C2C4C;--good:#5CC49A;--warn:#E0A94A;--bad:#E27B73;--c1:#6FA3E8;--c2:#E0A94A;--c3:#7DBBA6;--c4:#B88BCB;--c5:#93A0AE;--grid:#26324D;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;padding-block:24px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-size:15px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font-size:26px;line-height:1.3;margin:0;text-wrap:balance}
+h2{font-size:16px;margin:0 0 4px;font-weight:600}
+p.sub{margin:4px 0 0;color:var(--muted);font-size:14px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:860px){.g2{grid-template-columns:minmax(0,1fr)}.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ctl{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
+.ctl .slider{flex:1 1 280px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.thv{font-size:30px;font-weight:600;color:var(--accent)}
+.gauge{text-align:center}
+.gauge svg{width:100%;max-width:170px;height:auto}
+.gauge .lab{font-size:13px;color:var(--muted);margin-top:-6px}
+.gauge .val{font-size:24px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;display:inline-flex;gap:8px;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.cm{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:stretch;margin-top:10px}
+.cm div{padding:10px;border-radius:8px;text-align:center}
+.cm .h{font-size:12px;color:var(--muted);padding:4px}
+.cm .c{font-size:26px;font-weight:600;background:var(--accent-soft)}
+.cm .bad{background:color-mix(in srgb,var(--bad) 18%,var(--surface))}
+.cm .warn{background:color-mix(in srgb,var(--warn) 20%,var(--surface))}
+.cv{height:300px;position:relative}
+.cv.tall{height:430px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:500;font-size:13px}
+td:first-child,th:first-child{text-align:right}
+.scroll{overflow-x:auto}
+.note{background:var(--accent-soft);border-radius:8px;padding:12px 14px;font-size:14px;margin-top:12px}
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:8px}
+.tag{font-size:12px;color:var(--muted)}
+</style>
+<div class="wrap">
+  <header>
+    <h1>لوحة IFC-XAI للرقابة الداخلية المالية</h1>
+    <p class="sub">نتائج تحليل بيانات الائتمان الألمانية (<span class="num">1000</span> سجل، <span class="num">300</span> حالة اختبار) وربط تفسير SHAP بمكوّنات COSO. حرّك العتبة لترى أثر القرار الرقابي فورًا.</p>
+  </header>
+
+  <section class="panel">
+    <div class="ctl">
+      <div>
+        <div class="tag">عتبة تصنيف الحالة كخطرة</div>
+        <div class="thv num" id="thv">0.50</div>
+      </div>
+      <div class="slider">
+        <input type="range" id="th" min="0.10" max="0.90" step="0.05" value="0.50" aria-label="عتبة القرار">
+        <div class="tag" style="display:flex;justify-content:space-between"><span>0.90 أكثر تساهلًا</span><span>0.10 أكثر تحفظًا</span></div>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <section class="grid g4" id="gauges"></section>
+
+  <section class="grid g2">
+    <div class="panel">
+      <h2>مصفوفة الالتباس عند العتبة الحالية</h2>
+      <p class="sub">الانحدار اللوجستي، 300 حالة اختبار</p>
+      <div class="cm" id="cm"></div>
+      <div class="note" id="cmnote"></div>
+    </div>
+    <div class="panel">
+      <h2>منحنيات ROC</h2>
+      <p class="sub">النقطة الدائرية هي موضع العتبة الحالية على منحنى الانحدار اللوجستي</p>
+      <div class="cv"><canvas id="roc" role="img" aria-label="منحنيات ROC للنماذج الأربعة"></canvas></div>
+    </div>
+  </section>
+
+  <section class="grid g2">
+    <div class="panel">
+      <h2>أهم 15 متغيرًا بحسب SHAP</h2>
+      <p class="sub">متوسط القيمة المطلقة للأثر، ملوّنة بمكوّن COSO</p>
+      <div class="cv tall"><canvas id="shap" role="img" aria-label="أهم المتغيرات بحسب SHAP"></canvas></div>
+      <div class="lg" id="shaplg"></div>
+    </div>
+    <div class="panel">
+      <h2>توزيع الوزن التفسيري على مكوّنات COSO</h2>
+      <p class="sub">مجموع أثر أهم 15 متغيرًا</p>
+      <div class="cv" style="height:250px"><canvas id="coso" role="img" aria-label="توزيع الوزن على مكونات COSO"></canvas></div>
+      <div class="scroll"><table id="cosot"></table></div>
+    </div>
+  </section>
+
+  <section class="grid g2">
+    <div class="panel">
+      <h2>مقارنة النماذج: عينة الاختبار مقابل التحقق المتقاطع</h2>
+      <p class="sub">AUC-ROC، 5 طيّات × 3 تكرارات</p>
+      <div class="cv"><canvas id="cmp" role="img" aria-label="مقارنة AUC"></canvas></div>
+      <div class="note" id="pnote"></div>
+    </div>
+    <div class="panel">
+      <h2>جدول الأداء الكامل</h2>
+      <p class="sub">عينة الاختبار عند العتبة 0.50</p>
+      <div class="scroll"><table id="perf"></table></div>
+      <h2 style="margin-top:18px">التحقق المتقاطع</h2>
+      <div class="scroll"><table id="cvt"></table></div>
+    </div>
+  </section>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const D={"roc": {"Logistic Regression": {"fpr": [0.0, 0.0, 0.0095, 0.0143, 0.0238, 0.0333, 0.0429, 0.0524, 0.0619, 0.0667, 0.0762, 0.081, 0.0905, 0.1095, 0.119, 0.1333, 0.1429, 0.1667, 0.1952, 0.2, 0.2048, 0.2286, 0.2429, 0.2571, 0.2667, 0.2952, 0.3, 0.3286, 0.4143, 0.4619, 0.4667, 0.5, 0.6571, 0.6762, 0.6857, 0.7048, 0.7619, 0.7667, 0.8286, 1.0], "tpr": [0.0, 0.0778, 0.0889, 0.1, 0.1889, 0.2111, 0.2667, 0.2778, 0.3667, 0.3778, 0.4, 0.4444, 0.4889, 0.5, 0.5444, 0.5778, 0.5889, 0.6, 0.6111, 0.6667, 0.6778, 0.6889, 0.7, 0.7222, 0.7333, 0.7556, 0.7778, 0.8222, 0.8444, 0.8556, 0.8778, 0.8889, 0.9, 0.9111, 0.9333, 0.9444, 0.9556, 0.9667, 0.9889, 1.0], "auc": 0.8011}, "Decision Tree": {"fpr": [0.0, 0.0, 0.0, 0.0571, 0.0571, 0.0762, 0.0762, 0.081, 0.081, 0.1429, 0.1429, 0.181, 0.181, 0.219, 0.219, 0.2381, 0.2381, 0.2857, 0.2857, 0.3, 0.3, 0.319, 0.319, 0.3286, 0.3286, 0.3429, 0.3429, 0.3619, 0.3619, 0.3905, 0.3905, 0.419, 0.419, 0.7714, 0.7714, 0.8238, 0.8238, 0.9048, 0.9048, 1.0], "tpr": [0.0, 0.0, 0.0, 0.0667, 0.0667, 0.0889, 0.0889, 0.1556, 0.1556, 0.3444, 0.3444, 0.3778, 0.3778, 0.4444, 0.4444, 0.4667, 0.4667, 0.5222, 0.5222, 0.5333, 0.5333, 0.5444, 0.5444, 0.5667, 0.5667, 0.5667, 0.5667, 0.5667, 0.5667, 0.6444, 0.6444, 0.6778, 0.6778, 0.8, 0.8, 0.8889, 0.8889, 0.9667, 0.9667, 1.0], "auc": 0.6326}, "Random Forest": {"fpr": [0.0, 0.0, 0.0095, 0.0238, 0.0333, 0.0381, 0.0429, 0.0524, 0.0571, 0.0667, 0.0714, 0.081, 0.119, 0.1238, 0.1333, 0.1381, 0.1429, 0.1714, 0.1762, 0.1905, 0.2095, 0.2333, 0.2381, 0.2429, 0.2524, 0.2667, 0.3143, 0.3238, 0.3429, 0.3476, 0.4667, 0.481, 0.4857, 0.5476, 0.5524, 0.6048, 0.6571, 0.7, 0.8238, 1.0], "tpr": [0.0, 0.0556, 0.1, 0.1556, 0.1889, 0.3111, 0.3556, 0.3667, 0.3889, 0.4, 0.4222, 0.4333, 0.4444, 0.4667, 0.5111, 0.5333, 0.5444, 0.5556, 0.5778, 0.6, 0.6111, 0.6222, 0.6556, 0.7222, 0.7333, 0.7444, 0.7556, 0.7667, 0.7889, 0.8, 0.8222, 0.8556, 0.8667, 0.9, 0.9111, 0.9333, 0.9556, 0.9778, 0.9889, 1.0], "auc": 0.7971}, "Gradient Boosting": {"fpr": [0.0, 0.0, 0.0095, 0.0143, 0.0238, 0.0429, 0.0476, 0.0667, 0.081, 0.0857, 0.0905, 0.1, 0.1048, 0.1238, 0.1333, 0.1857, 0.219, 0.2286, 0.2381, 0.2429, 0.2476, 0.3048, 0.3095, 0.3286, 0.3571, 0.3714, 0.3762, 0.4095, 0.4762, 0.481, 0.5143, 0.5238, 0.5476, 0.619, 0.6762, 0.7429, 0.7952, 0.8238, 0.8381, 1.0], "tpr": [0.0, 0.0444, 0.1, 0.1111, 0.2333, 0.2444, 0.2556, 0.3, 0.3111, 0.3222, 0.4, 0.4333, 0.4444, 0.4667, 0.4889, 0.5, 0.5556, 0.5667, 0.5889, 0.6222, 0.6556, 0.6667, 0.6889, 0.7111, 0.7333, 0.7667, 0.7889, 0.8, 0.8222, 0.8444, 0.8556, 0.8667, 0.9, 0.9111, 0.9222, 0.9444, 0.9556, 0.9667, 0.9889, 1.0], "auc": 0.7651}}, "probs": [0.029, 0.1333, 0.4272, 0.1076, 0.2809, 0.1141, 0.0888, 0.3048, 0.3939, 0.6853, 0.7327, 0.5131, 0.0072, 0.6481, 0.7414, 0.8793, 0.2323, 0.805, 0.021, 0.3546, 0.4939, 0.0213, 0.0877, 0.1832, 0.5773, 0.1706, 0.1809, 0.3404, 0.0786, 0.2988, 0.0251, 0.6185, 0.0417, 0.1278, 0.1437, 0.7286, 0.0545, 0.0872, 0.0582, 0.0499, 0.5208, 0.2467, 0.0683, 0.2611, 0.0166, 0.4311, 0.0952, 0.2272, 0.7092, 0.4995, 0.0953, 0.8533, 0.1035, 0.4475, 0.8711, 0.5008, 0.3935, 0.1217, 0.5108, 0.4575, 0.5074, 0.5843, 0.6585, 0.0253, 0.2901, 0.2218, 0.4614, 0.0736, 0.3187, 0.5424, 0.2226, 0.2234, 0.0509, 0.0496, 0.6378, 0.242, 0.1118, 0.1037, 0.3468, 0.0533, 0.0399, 0.3471, 0.6575, 0.1638, 0.1839, 0.3067, 0.2908, 0.1281, 0.1861, 0.663, 0.0122, 0.476, 0.1511, 0.6416, 0.0634, 0.2949, 0.3292, 0.0825, 0.0387, 0.4671, 0.5128, 0.012, 0.618, 0.1068, 0.4546, 0.0574, 0.2167, 0.1152, 0.3558, 0.0289, 0.0303, 0.1463, 0.5073, 0.6116, 0.4803, 0.1033, 0.0394, 0.5618, 0.1214, 0.6866, 0.2747, 0.2299, 0.2001, 0.0691, 0.0255, 0.2122, 0.3095, 0.3543, 0.6834, 0.2806, 0.4177, 0.4327, 0.1164, 0.7302, 0.3809, 0.289, 0.518, 0.1038, 0.172, 0.1568, 0.6968, 0.017, 0.7141, 0.5519, 0.6552, 0.2558, 0.911, 0.1227, 0.1143, 0.1164, 0.1439, 0.0511, 0.6334, 0.0374, 0.6391, 0.0439, 0.0429, 0.0312, 0.0882, 0.2956, 0.0607, 0.1736, 0.4176, 0.0555, 0.1287, 0.0315, 0.6816, 0.1047, 0.3478, 0.3365, 0.1063, 0.1766, 0.8235, 0.2952, 0.7353, 0.0941, 0.134, 0.2361, 0.4339, 0.5739, 0.0872, 0.1351, 0.4891, 0.2307, 0.0913, 0.0162, 0.3372, 0.7706, 0.0357, 0.2719, 0.5968, 0.5601, 0.1289, 0.692, 0.2096, 0.1182, 0.3204, 0.1519, 0.4628, 0.4276, 0.4881, 0.5838, 0.4595, 0.1216, 0.1547, 0.7067, 0.0089, 0.0809, 0.3878, 0.5362, 0.212, 0.1076, 0.7932, 0.0407, 0.6372, 0.0137, 0.7366, 0.7742, 0.1283, 0.1896, 0.1439, 0.1163, 0.1629, 0.1952, 0.5238, 0.0202, 0.3995, 0.841, 0.6006, 0.4993, 0.4237, 0.1973, 0.1251, 0.0849, 0.2191, 0.321, 0.0982, 0.8206, 0.0472, 0.0161, 0.4197, 0.2311, 0.391, 0.0363, 0.7046, 0.3918, 0.2135, 0.0306, 0.0398, 0.1714, 0.5825, 0.497, 0.3277, 0.2397, 0.644, 0.133, 0.2666, 0.0456, 0.1358, 0.0454, 0.0637, 0.5338, 0.122, 0.1151, 0.302, 0.208, 0.1863, 0.6802, 0.8318, 0.3608, 0.4676, 0.5954, 0.8636, 0.0342, 0.0645, 0.1427, 0.8741, 0.465, 0.2674, 0.626, 0.1638, 0.0948, 0.3007, 0.6743, 0.0259, 0.1088, 0.0522, 0.1818, 0.0221, 0.2727, 0.0361, 0.1854, 0.5844, 0.2881, 0.2256, 0.3323, 0.0889, 0.0244, 0.1626, 0.0654], "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0], "perf": [{"Model": "Logistic Regression", "Accuracy": 0.7833, "Precision": 0.6761, "Recall": 0.5333, "F1-Score": 0.5963, "AUC-ROC": 0.8011, "TN": 187, "FP": 23, "FN": 42, "TP": 48}, {"Model": "Random Forest", "Accuracy": 0.7633, "Precision": 0.7568, "Recall": 0.3111, "F1-Score": 0.4409, "AUC-ROC": 0.7971, "TN": 201, "FP": 9, "FN": 62, "TP": 28}, {"Model": "Gradient Boosting", "Accuracy": 0.7633, "Precision": 0.6557, "Recall": 0.4444, "F1-Score": 0.5298, "AUC-ROC": 0.7651, "TN": 189, "FP": 21, "FN": 50, "TP": 40}, {"Model": "Decision Tree", "Accuracy": 0.6567, "Precision": 0.4393, "Recall": 0.5222, "F1-Score": 0.4772, "AUC-ROC": 0.6326, "TN": 150, "FP": 60, "FN": 43, "TP": 47}], "shap": [{"Feature": "cat__status_no checking account", "Mean|SHAP value|": 0.4481436370891166, "Rank": 1, "COSO_Component": "Risk Assessment"}, {"Feature": "cat__savings_... < 100 DM", "Mean|SHAP value|": 0.3267225830537718, "Rank": 2, "COSO_Component": "Risk Assessment"}, {"Feature": "cat__credit_history_critical account/other credits existing", "Mean|SHAP value|": 0.3220505258671327, "Rank": 3, "COSO_Component": "Risk Assessment"}, {"Feature": "num__installment_rate", "Mean|SHAP value|": 0.3168019541011321, "Rank": 4, "COSO_Component": "Control Activities"}, {"Feature": "num__duration", "Mean|SHAP value|": 0.285204334106216, "Rank": 5, "COSO_Component": "Control Activities"}, {"Feature": "cat__status_... < 100 DM", "Mean|SHAP value|": 0.2284657820699197, "Rank": 6, "COSO_Component": "Risk Assessment"}, {"Feature": "num__number_credits", "Mean|SHAP value|": 0.2057892183079733, "Rank": 7, "COSO_Component": "Control Activities"}, {"Feature": "cat__personal_status_sex_male : single", "Mean|SHAP value|": 0.1985248281112191, "Rank": 8, "COSO_Component": "Control Environment"}, {"Feature": "cat__employment_duration_4 <= ... < 7 years", "Mean|SHAP value|": 0.1831462068510066, "Rank": 9, "COSO_Component": "Control Environment"}, {"Feature": "cat__property_unknown/no property", "Mean|SHAP value|": 0.1809564950800203, "Rank": 10, "COSO_Component": "Risk Assessment"}, {"Feature": "cat__housing_rent", "Mean|SHAP value|": 0.1666498399059238, "Rank": 11, "COSO_Component": "Control Environment"}, {"Feature": "num__amount", "Mean|SHAP value|": 0.1662443130973575, "Rank": 12, "COSO_Component": "Control Activities"}, {"Feature": "cat__savings_unknown/no savings account", "Mean|SHAP value|": 0.1465083021304024, "Rank": 13, "COSO_Component": "Risk Assessment"}, {"Feature": "cat__status_0 <= ... < 200 DM", "Mean|SHAP value|": 0.1391181621583962, "Rank": 14, "COSO_Component": "Risk Assessment"}, {"Feature": "cat__property_real estate", "Mean|SHAP value|": 0.1369443337831964, "Rank": 15, "COSO_Component": "Risk Assessment"}], "coso": [{"COSO_Component": "Risk Assessment", "count": 8, "sum": 1.928909821231956, "share_%": 55.9}, {"COSO_Component": "Control Activities", "count": 4, "sum": 0.9740398196126788, "share_%": 28.2}, {"COSO_Component": "Control Environment", "count": 3, "sum": 0.5483208748681495, "share_%": 15.9}], "cv": [{"Model": "Logistic Regression", "Accuracy": 0.7497, "Recall": 0.4767, "F1-Score": 0.5334, "AUC-ROC (mean)": 0.7806, "AUC SD": 0.0309}, {"Model": "Decision Tree", "Accuracy": 0.6987, "Recall": 0.3822, "F1-Score": 0.424, "AUC-ROC (mean)": 0.6833, "AUC SD": 0.0407}, {"Model": "Random Forest", "Accuracy": 0.757, "Recall": 0.2911, "F1-Score": 0.4173, "AUC-ROC (mean)": 0.7929, "AUC SD": 0.0289}, {"Model": "Gradient Boosting", "Accuracy": 0.7517, "Recall": 0.4878, "F1-Score": 0.5403, "AUC-ROC (mean)": 0.775, "AUC SD": 0.0307}], "cvs": {"paired_t": -2.0674078187675478, "paired_p": 0.057702091847872145, "mean_diff": -0.012230158730158713, "ci_lo": 0.7416715652319961, "ci_hi": 0.8564299074698452, "folds": 15}};
+const FA={"cat__status_no checking account":"لا يوجد حساب جارٍ","cat__savings_... < 100 DM":"مدخرات أقل من 100 مارك","cat__credit_history_critical account/other credits existing":"سجل ائتماني حرج","num__installment_rate":"معدّل القسط الشهري","num__duration":"مدة القرض بالأشهر","cat__status_... < 100 DM":"رصيد جارٍ أقل من 100 مارك","num__number_credits":"عدد القروض القائمة","cat__personal_status_sex_male : single":"ذكر أعزب","cat__employment_duration_4 <= ... < 7 years":"توظيف 4 إلى 7 سنوات","cat__property_unknown/no property":"لا ممتلكات مسجّلة","cat__housing_rent":"السكن إيجار","num__amount":"قيمة القرض","cat__savings_unknown/no savings account":"لا حساب توفير","cat__status_0 <= ... < 200 DM":"رصيد جارٍ 0 إلى 200 مارك","cat__property_real estate":"امتلاك عقار"};
+const CA={"Risk Assessment":"تقييم المخاطر","Control Activities":"أنشطة الرقابة","Control Environment":"بيئة الرقابة"};
+const MA={"Logistic Regression":"الانحدار اللوجستي","Random Forest":"الغابة العشوائية","Gradient Boosting":"التعزيز التدرّجي","Decision Tree":"شجرة القرار"};
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const f3=v=>v.toFixed(3);
+const compKey=["Risk Assessment","Control Activities","Control Environment"];
+const compCol=()=>[css('--c1'),css('--c2'),css('--c3')];
+
+function metrics(t){let tp=0,fp=0,fn=0,tn=0;D.probs.forEach((p,i)=>{const pr=p>=t?1:0,y=D.y[i];if(pr&&y)tp++;else if(pr&&!y)fp++;else if(!pr&&y)fn++;else tn++});
+ const acc=(tp+tn)/D.y.length,prec=tp+fp?tp/(tp+fp):0,rec=tp/(tp+fn),f1=prec+rec?2*prec*rec/(prec+rec):0;return{tp,fp,fn,tn,acc,prec,rec,f1,fpr:fp/(fp+tn)}}
+
+function gauge(label,v,note){const L=157.08;return `<div class="panel gauge"><svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10 62 A50 50 0 0 1 110 62" fill="none" stroke="var(--grid)" stroke-width="11" stroke-linecap="round"/><path d="M10 62 A50 50 0 0 1 110 62" fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${(L*(1-v)).toFixed(2)}"/></svg><div class="val num">${f3(v)}</div><div class="lab">${label}</div><div class="tag">${note}</div></div>`}
+
+let charts={};
+function render(){
+ const t=parseFloat($('th').value);$('thv').textContent=t.toFixed(2);
+ const m=metrics(t);
+ $('gauges').innerHTML=gauge('الدقة الكلية',m.acc,'Accuracy')+gauge('الدقة الموجبة',m.prec,'Precision')+gauge('الاستدعاء',m.rec,'Recall')+gauge('مقياس F1',m.f1,'F1-Score');
+ const sev=m.fn>35?'var(--bad)':m.fn>20?'var(--warn)':'var(--good)';
+ $('chips').innerHTML=`<span class="chip"><span class="dot" style="background:${sev}"></span>حالات خطرة فائتة <b class="num">${m.fn}</b></span><span class="chip"><span class="dot" style="background:var(--warn)"></span>إنذارات كاذبة <b class="num">${m.fp}</b></span>`;
+ $('cm').innerHTML=`<div class="h"></div><div class="h">متنبَّأ: غير خطرة</div><div class="h">متنبَّأ: خطرة</div>
+ <div class="h">فعلي: غير خطرة</div><div class="c num">${m.tn}</div><div class="c warn num">${m.fp}</div>
+ <div class="h">فعلي: خطرة</div><div class="c bad num">${m.fn}</div><div class="c num">${m.tp}</div>`;
+ $('cmnote').innerHTML=`الخانة الحمراء هي الخطأ الأعلى كلفة رقابيًا: <b class="num">${m.fn}</b> حالة خطرة من <b class="num">${m.fn+m.tp}</b> لم يلتقطها النموذج. خفض العتبة يقلّلها لكنه يزيد الإنذارات الكاذبة التي تحتاج مراجعة بشرية.`;
+ if(charts.roc){charts.roc.data.datasets[charts.roc.data.datasets.length-1].data=[{x:m.fpr,y:m.rec}];charts.roc.update('none')}
+}
+$('th').addEventListener('input',render);
+
+function tableHTML(head,rows){return '<thead><tr>'+head.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map((c,i)=>`<td${i?' class="num"':''}>${c}</td>`).join('')+'</tr>').join('')+'</tbody>'}
+
+function build(){
+ Object.values(charts).forEach(c=>c.destroy());charts={};
+ const ink=css('--ink'),mut=css('--muted'),grid=css('--grid');
+ Chart.defaults.font.family='"IBM Plex Sans Arabic",system-ui,sans-serif';Chart.defaults.color=mut;Chart.defaults.font.size=12;
+ const cols=[css('--c1'),css('--c2'),css('--c3'),css('--c4')];
+ const names=["Logistic Regression","Random Forest","Gradient Boosting","Decision Tree"];
+ const ds=names.map((n,i)=>({label:`${MA[n]} (${D.roc[n].auc.toFixed(3)})`,data:D.roc[n].fpr.map((x,j)=>({x,y:D.roc[n].tpr[j]})),borderColor:cols[i],backgroundColor:cols[i],borderWidth:i?1.6:2.6,pointRadius:0,tension:0,showLine:true}));
+ ds.push({label:'عشوائي',data:[{x:0,y:0},{x:1,y:1}],borderColor:mut,borderDash:[5,4],borderWidth:1,pointRadius:0,showLine:true});
+ ds.push({label:'العتبة الحالية',data:[{x:0,y:0}],borderColor:ink,backgroundColor:css('--bad'),pointRadius:7,pointBorderWidth:2,pointBorderColor:css('--surface'),showLine:false});
+ charts.roc=new Chart($('roc'),{type:'scatter',data:{datasets:ds},options:{maintainAspectRatio:false,animation:false,scales:{x:{min:0,max:1,title:{display:true,text:'معدل الإنذار الكاذب'},grid:{color:grid}},y:{min:0,max:1,title:{display:true,text:'الاستدعاء'},grid:{color:grid}}},plugins:{legend:{position:'bottom',labels:{boxWidth:12,usePointStyle:false}}}}});
+
+ const cc=compCol();const sh=D.shap.slice(0,15);
+ charts.shap=new Chart($('shap'),{type:'bar',data:{labels:sh.map(r=>FA[r.Feature]||r.Feature),datasets:[{data:sh.map(r=>+r['Mean|SHAP value|'].toFixed(3)),backgroundColor:sh.map(r=>cc[compKey.indexOf(r.COSO_Component)]),borderRadius:3}]},options:{indexAxis:'y',maintainAspectRatio:false,animation:false,scales:{x:{grid:{color:grid},title:{display:true,text:'متوسط |SHAP|'}},y:{position:'right',grid:{display:false},ticks:{font:{size:11}}}},plugins:{legend:{display:false}}}});
+ $('shaplg').innerHTML=compKey.map((k,i)=>`<span><span class="dot" style="background:${cc[i]}"></span> ${CA[k]}</span>`).join('');
+
+ const co=D.coso;
+ charts.coso=new Chart($('coso'),{type:'doughnut',data:{labels:co.map(r=>CA[r.COSO_Component]),datasets:[{data:co.map(r=>r['share_%']),backgroundColor:co.map(r=>cc[compKey.indexOf(r.COSO_Component)]),borderColor:css('--surface'),borderWidth:3}]},options:{maintainAspectRatio:false,animation:false,cutout:'58%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}%`}}}}});
+ $('cosot').innerHTML=tableHTML(['المكوّن','عدد المتغيرات','مجموع |SHAP|','النسبة'],co.map(r=>[CA[r.COSO_Component],r['count'],r['sum'].toFixed(3),r['share_%'].toFixed(1)+'%']));
+
+ const cvm={};D.cv.forEach(r=>cvm[r.Model]=r);
+ charts.cmp=new Chart($('cmp'),{type:'bar',data:{labels:names.map(n=>MA[n]),datasets:[{label:'عينة الاختبار',data:names.map(n=>D.roc[n].auc),backgroundColor:cols[0],borderRadius:3},{label:'التحقق المتقاطع',data:names.map(n=>+cvm[n]['AUC-ROC (mean)']),backgroundColor:cols[1],borderRadius:3}]},options:{maintainAspectRatio:false,animation:false,scales:{y:{min:0.5,max:0.85,grid:{color:grid},title:{display:true,text:'AUC-ROC'}},x:{grid:{display:false}}},plugins:{legend:{position:'bottom'}}}});
+ const s=D.cvs;$('pnote').innerHTML=`الفرق بين الانحدار اللوجستي والغابة العشوائية غير دال إحصائيًا (<span class="num">p = ${s.paired_p.toFixed(3)}</span>)، فلا يُنسب تفوّق لنموذج. فترة ثقة 95% لـ AUC على الاختبار: <span class="num">${s.ci_lo.toFixed(3)} – ${s.ci_hi.toFixed(3)}</span>.`;
+ $('perf').innerHTML=tableHTML(['النموذج','Accuracy','Precision','Recall','F1','AUC'],D.perf.map(r=>[MA[r.Model],r.Accuracy.toFixed(3),r.Precision.toFixed(3),r.Recall.toFixed(3),r['F1-Score'].toFixed(3),r['AUC-ROC'].toFixed(3)]));
+ $('cvt').innerHTML=tableHTML(['النموذج','Recall','F1','AUC','انحراف AUC'],D.cv.map(r=>[MA[r.Model],r.Recall.toFixed(3),r['F1-Score'].toFixed(3),(+r['AUC-ROC (mean)']).toFixed(3),(+r['AUC SD']).toFixed(3)]));
+ render();
+}
+build();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',build);
+new MutationObserver(build).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>
