@@ -36,4 +36,4 @@ German Credit (Statlog), UCI Machine Learning Repository — Hofmann (1994); Dua
 
 ## Notes
 - `REFERENCES_CHECK.md` lists which references were verified.
-- Add a LICENSE of your choice before publishing (e.g., MIT for code).
+- Code is released under the MIT License (see LICENSE). The German Credit dataset remains subject to its UCI terms.
