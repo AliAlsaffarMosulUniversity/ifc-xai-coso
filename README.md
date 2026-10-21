@@ -3,7 +3,7 @@
 Code and results accompanying the paper:
 **"Governance of Explainable AI in Internal Financial Control Systems: A Proposed Framework Integrating XAI Techniques with the COSO Model to Enhance Institutional Sustainability"**
 
-Author: Ali Abdulwahab Yahya Al-Saffar — College of Administration and Economics, University of Mosul.
+Authors: Ali Abdulwahab Yahya Al-Saffar and Maan Waadalla Al-Maadhedee — College of Administration and Economics, University of Mosul.
 
 ## What this repo does
 - Trains four classifiers (Logistic Regression, Decision Tree, Random Forest, Gradient Boosting) on the public German Credit dataset (1000 records).
@@ -41,7 +41,7 @@ German Credit (Statlog), UCI Machine Learning Repository — Hofmann (1994); Dua
 ## Citation / Attribution
 This work is free to use. Please credit the author (see `LICENSE` and `CITATION.cff`):
 
-Al-Saffar, A. A. Y. (2026). *IFC-XAI: Explainable AI Governance in Internal Financial Control (COSO-aligned)* [Software]. https://github.com/AliAlsaffarMosulUniversity/ifc-xai-coso
+Al-Saffar, A. A. Y., & Al-Maadhedee, M. W. (2026). *IFC-XAI: Explainable AI Governance in Internal Financial Control (COSO-aligned)* [Software]. https://github.com/AliAlsaffarMosulUniversity/ifc-xai-coso
 
 ## Interactive dashboard
 Open `index.html` in a browser (or via GitHub Pages) (needs internet for Chart.js). English (default) and Arabic interface with light/dark mode. It shows gauges, ROC curves, confusion matrix, SHAP/COSO charts and a decision-threshold slider.
